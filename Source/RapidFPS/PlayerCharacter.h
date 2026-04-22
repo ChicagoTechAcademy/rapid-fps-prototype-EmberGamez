@@ -30,11 +30,37 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	// In your class definition:
-	UPROPERTY(EditAnywhere, Category = "Input")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputMappingContext* DefaultMappingContext;
 
-	UPROPERTY(EditAnywhere, Category = "Input")
+	//jump
+	//look
+	//shoot
+	//reload
+	//pick up, Extra
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputAction* MoveAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* JumpAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* LookAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* ReloadAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* ShootAction;
+
+	/*UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* PickUpAction;*/
+
 	void Move(const struct FInputActionValue& Value);
+	void Jump(const struct FInputActionValue& Value);
+	void Look(const struct FInputActionValue& Value);
+	void Shoot(const struct FInputActionValue& Value);
+	void Reload(const struct FInputActionValue& Value);
+	//void PickUp(const struct FInputActionValue& Value);
 };

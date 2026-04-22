@@ -38,11 +38,51 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Move);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Jump);
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
+		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Shoot);
+		EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Reload);
 	}
 }
 
 void APlayerCharacter::Move(const FInputActionValue& Value)
 {
-	//move based on forward & Y, and Right & X
+	FVector2D MovementVector = Value.Get<FVector2D>();
+
+	if (Controller != nullptr)
+	{
+		AddMovementInput(GetActorForwardVector(), MovementVector.Y);
+		AddMovementInput(GetActorRightVector(), MovementVector.X);
+	}
+	UE_LOG(LogTemp, Warning, TEXT("You're Moving, I Think."));
+}
+
+void APlayerCharacter::Jump(const FInputActionValue& Value)
+{
+	
+	UE_LOG(LogTemp, Warning, TEXT("You're Jumping, Not."));
+}
+
+void APlayerCharacter::Look(const FInputActionValue& Value)
+{
+	FVector2D LookAxisVector = Value.Get<FVector2D>();
+
+	if (Controller != nullptr)
+	{
+		AddControllerYawInput(LookAxisVector.X);
+		AddControllerPitchInput(LookAxisVector.Y);
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("You're Looking, Forward."));
+}
+
+void APlayerCharacter::Shoot(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("You're Shooting, Air."));
+}
+
+void APlayerCharacter::Reload(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("You're Reloading Nothing."));
 }
 
