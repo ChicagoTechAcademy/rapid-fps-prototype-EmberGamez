@@ -40,7 +40,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Move);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Jump);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
-		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Shoot);
+		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Started, this, &APlayerCharacter::Shoot);
 		EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Reload);
 	}
 }
@@ -87,14 +87,14 @@ void APlayerCharacter::Shoot(const FInputActionValue& Value)
 		GetActorEyesViewPoint(CameraLocation, CameraRotation);
 
 		// Set MuzzleOffset to spawn projectiles slightly in front of the camera.
-		MuzzleOffset.Set(100.0f, 0.0f, 0.0f);
+		MuzzleOffset.Set(100.0f, 50.0f, -50.0f);
 
 		// Transform MuzzleOffset from camera space to world space.
 		FVector MuzzleLocation = CameraLocation + FTransform(CameraRotation).TransformVector(MuzzleOffset);
 
 		// Skew the aim to be slightly upwards.
 		FRotator MuzzleRotation = CameraRotation;
-		MuzzleRotation.Pitch += 10.0f;
+		MuzzleRotation.Pitch += 0.0f;
 
 		UWorld* World = GetWorld();
 		if (World)

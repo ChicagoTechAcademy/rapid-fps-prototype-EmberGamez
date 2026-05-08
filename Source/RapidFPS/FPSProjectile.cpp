@@ -19,6 +19,10 @@ AFPSProjectile::AFPSProjectile()
     {
         // Use a sphere as a simple collision representation.
         CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
+        // Set the sphere's collision profile name to "Projectile".
+        CollisionComponent->BodyInstance.SetCollisionProfileName(TEXT("Projectile"));
+        // Event called when component hits something.
+        CollisionComponent->OnComponentHit.AddDynamic(this, &AFPSProjectile::OnHit);
         // Set the sphere's collision radius.
         CollisionComponent->InitSphereRadius(15.0f);
         // Set the root component to be the collision component.
@@ -30,13 +34,16 @@ AFPSProjectile::AFPSProjectile()
         // Use this component to drive this projectile's movement.
         ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
         ProjectileMovementComponent->SetUpdatedComponent(CollisionComponent);
-        ProjectileMovementComponent->InitialSpeed = 3000.0f;
-        ProjectileMovementComponent->MaxSpeed = 3000.0f;
+        ProjectileMovementComponent->InitialSpeed = 5000.0f;
+        ProjectileMovementComponent->MaxSpeed = 5000.0f;
         ProjectileMovementComponent->bRotationFollowsVelocity = true;
         ProjectileMovementComponent->bShouldBounce = true;
-        ProjectileMovementComponent->Bounciness = 0.3f;
+        ProjectileMovementComponent->Bounciness = 0.1f;
         ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
     }
+
+    // Delete the projectile after # seconds.
+    InitialLifeSpan = 1.5f;
 }
 
 // Called when the game starts or when spawned
@@ -58,3 +65,25 @@ void AFPSProjectile::FireInDirection(const FVector& ShootDirection)
 {
     ProjectileMovementComponent->Velocity = ShootDirection * ProjectileMovementComponent->InitialSpeed;
 } 
+
+void AFPSProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
+{
+    if (OtherActor != this && OtherComponent->IsSimulatingPhysics())
+    {
+        OtherComponent->AddImpulseAtLocation(ProjectileMovementComponent->Velocity * 100.0f, Hit.ImpactPoint);
+    }
+    //Destroy();
+
+    if (ProjectileMovementComponent)
+    {
+        ProjectileMovementComponent->StopMovementImmediately();
+        ProjectileMovementComponent->SetActive(false);
+    }
+
+    if (CollisionComponent)
+    {
+        CollisionComponent->SetSimulatePhysics(true);
+        //Apply current velocity as an impuslive to maintain speed
+        CollisionComponent->AddImpulse(ProjectileMovementComponent->Velocity);
+    }
+}
