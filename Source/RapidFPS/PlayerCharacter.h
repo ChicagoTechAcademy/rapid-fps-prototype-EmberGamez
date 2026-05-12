@@ -40,6 +40,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	FVector MuzzleOffset;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
+	int maxAmmo = 3;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
+	int currentAmmo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
+	int storedAmmo;
+
+	void DecreaseAmmo(int ammoShot);
+
+
 	// In your class definition:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	UInputMappingContext* DefaultMappingContext;

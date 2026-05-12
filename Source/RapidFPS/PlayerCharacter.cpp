@@ -10,6 +10,9 @@ APlayerCharacter::APlayerCharacter()
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	currentAmmo = maxAmmo;
+	storedAmmo = maxAmmo * 3;
+
 }
 
 // Called when the game starts or when spawned
@@ -45,6 +48,11 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	}
 }
 
+void APlayerCharacter::DecreaseAmmo(int ammoShot)
+{
+	currentAmmo -= ammoShot;
+}
+
 void APlayerCharacter::Move(const FInputActionValue& Value)
 {
 	FVector2D MovementVector = Value.Get<FVector2D>();
@@ -54,7 +62,7 @@ void APlayerCharacter::Move(const FInputActionValue& Value)
 		AddMovementInput(GetActorForwardVector(), MovementVector.Y);
 		AddMovementInput(GetActorRightVector(), MovementVector.X);
 	}
-	UE_LOG(LogTemp, Warning, TEXT("You're Moving, I Think."));
+	//UE_LOG(LogTemp, Warning, TEXT("You're Moving, I Think."));
 }
 
 void APlayerCharacter::Jump(const FInputActionValue& Value)
@@ -73,50 +81,69 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("You're Looking, Forward."));
+	//UE_LOG(LogTemp, Warning, TEXT("You're Looking, Forward."));
 }
 
 void APlayerCharacter::Shoot(const FInputActionValue& Value)
 {
-	// Attempt to fire a projectile.
-	if (ProjectileClass)
+
+	if (currentAmmo > 0)
 	{
-		// Get the camera transform.
-		FVector CameraLocation;
-		FRotator CameraRotation;
-		GetActorEyesViewPoint(CameraLocation, CameraRotation);
-
-		// Set MuzzleOffset to spawn projectiles slightly in front of the camera.
-		MuzzleOffset.Set(100.0f, 50.0f, -50.0f);
-
-		// Transform MuzzleOffset from camera space to world space.
-		FVector MuzzleLocation = CameraLocation + FTransform(CameraRotation).TransformVector(MuzzleOffset);
-
-		// Skew the aim to be slightly upwards.
-		FRotator MuzzleRotation = CameraRotation;
-		MuzzleRotation.Pitch += 0.0f;
-
-		UWorld* World = GetWorld();
-		if (World)
+	// Attempt to fire a projectile.
+		if (ProjectileClass)
 		{
-			FActorSpawnParameters SpawnParams;
-			SpawnParams.Owner = this;
-			SpawnParams.Instigator = GetInstigator();
+			// Get the camera transform.
+			FVector CameraLocation;
+			FRotator CameraRotation;
+			GetActorEyesViewPoint(CameraLocation, CameraRotation);
 
-			// Spawn the projectile at the muzzle.
-			AFPSProjectile* Projectile = World->SpawnActor<AFPSProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
-			if (Projectile)
+			// Set MuzzleOffset to spawn projectiles slightly in front of the camera.
+			MuzzleOffset.Set(100.0f, 50.0f, -50.0f);
+
+			// Transform MuzzleOffset from camera space to world space.
+			FVector MuzzleLocation = CameraLocation + FTransform(CameraRotation).TransformVector(MuzzleOffset);
+
+			// Skew the aim to be slightly upwards.
+			FRotator MuzzleRotation = CameraRotation;
+			MuzzleRotation.Pitch += 0.0f;
+
+			UWorld* World = GetWorld();
+			if (World)
 			{
-				// Set the projectile's initial trajectory.
-				FVector LaunchDirection = MuzzleRotation.Vector();
-				Projectile->FireInDirection(LaunchDirection);
+				FActorSpawnParameters SpawnParams;
+				SpawnParams.Owner = this;
+				SpawnParams.Instigator = GetInstigator();
+
+				// Spawn the projectile at the muzzle.
+				AFPSProjectile* Projectile = World->SpawnActor<AFPSProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
+				if (Projectile)
+				{
+					// Set the projectile's initial trajectory.
+					FVector LaunchDirection = MuzzleRotation.Vector();
+					Projectile->FireInDirection(LaunchDirection);
+					DecreaseAmmo(1);
+				}
 			}
 		}
 	}
+
+	
 }
 
 void APlayerCharacter::Reload(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("You're Reloading Nothing."));
+
+	//loop
+	while ((currentAmmo < maxAmmo) && storedAmmo > 0)
+	{
+		currentAmmo += 1;
+		storedAmmo -= 1;
+
+		UE_LOG(LogTemp, Warning, TEXT("stash: %d"), storedAmmo);
+		UE_LOG(LogTemp, Warning, TEXT("mag: %d"), currentAmmo);
+	}
+	//solved aboved
+	//if stored is 4, greater than 3, works
+	//1? 1!>3, no work
 }
 
